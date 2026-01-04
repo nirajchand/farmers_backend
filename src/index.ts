@@ -10,7 +10,7 @@ const app = express();
 app.use(bodyParser.json());
 
 app.get("/",(req:Request,res: Response) => {
-    res.send("Hello world maya")
+    res.send("Hello world")
 })
 
 async function startServer(){
