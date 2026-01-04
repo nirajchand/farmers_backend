@@ -1,6 +1,6 @@
 import { UserService } from "../services/user.service";
-import { createUserDto, CreateUserDto,loginUserDTO,LoginUserDTO } from "../dtos/user.dto";
-import { Request,Response } from "express";
+import { createUserDto, CreateUserDto,loginUserDTO,LoginUserDTO,userDto} from "../dtos/user.dto";
+import { Request,response,Response } from "express";
 import z, { safeParse, success } from "zod";
 import { error } from "node:console";
 
@@ -39,7 +39,7 @@ export class AuthController{
 
             const loginData: LoginUserDTO = parseData.data;
             const{token, user} = await userService.loginUser(loginData);
-            res.status(200).json(
+            return res.status(200).json(
                 {success: true, message: "Login Success", data: user, token}
             )
         }catch(error: Error | any){
@@ -48,6 +48,20 @@ export class AuthController{
             )
         }
 
+    }
+
+    async getUserById(req: Request, res:Response){
+        try{
+            const id = req.params.id;
+            const user =  await userService.getUserById(id);
+            return res.status(200).json(
+                {success: true, message: "User Found", user: userDto}
+            )
+        }catch(err: Error | any){
+            return res.status(err.statusCode ?? 500).json({
+                success : false, message : err.message || "Internal server error"
+            })
+        }
     }
 
 

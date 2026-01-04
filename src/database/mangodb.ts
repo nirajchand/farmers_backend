@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import { MANGO_URI } from "../configs";
+import { MONGODB_URI } from "../configs";
 
 export async function connectDatabase(){
     try{
-        await mongoose.connect(MANGO_URI);
+        await mongoose.connect(MONGODB_URI);
         console.log("Mango connected")
     }catch(e){
         console.error("Database error: ", e);

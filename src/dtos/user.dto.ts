@@ -27,3 +27,13 @@ export const loginUserDTO = UserSchema.pick({
 })
 
 export type LoginUserDTO = z.infer<typeof loginUserDTO>
+
+
+
+export const userDto = UserSchema.pick({
+    fullName: true,
+    email: true,
+    role: true
+})
+
+export type UserDTO = z.infer<typeof userDto>
