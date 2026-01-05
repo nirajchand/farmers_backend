@@ -54,8 +54,9 @@ export class AuthController{
         try{
             const id = req.params.id;
             const user =  await userService.getUserById(id);
+            const parseData = userDto.safeParse(user)
             return res.status(200).json(
-                {success: true, message: "User Found", user: userDto}
+                {success: true, message: "User Found", parseData}
             )
         }catch(err: Error | any){
             return res.status(err.statusCode ?? 500).json({

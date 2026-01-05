@@ -31,7 +31,6 @@ export class UserService{
         if(!user){
             throw new HttpError(404,"User not Found")
         }
-        
         // compare password 
         const validatePassword = await bcrypt.compare(data.password, user.password)
         if(!validatePassword){
