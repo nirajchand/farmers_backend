@@ -2,7 +2,6 @@ import { UserService } from "../services/user.service";
 import { createUserDto, CreateUserDto,loginUserDTO,LoginUserDTO,userDto} from "../dtos/user.dto";
 import { Request,response,Response } from "express";
 import z, { safeParse, success } from "zod";
-import { error } from "node:console";
 
 let userService = new UserService();
 
@@ -12,7 +11,7 @@ export class AuthController{
             const parseData = createUserDto.safeParse(req.body);
             if(!parseData.success){
                 return res.status(400).json(
-                    {success : false, message: z.prettifyError(parseData.error)}
+                    {success : false, message: parseData.error.format()}
                 )
             }
 

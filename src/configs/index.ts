@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-export const PORT: number = process.env.PORT ? parseInt(process.env.PORT) : 3030;
+export const PORT: number = process.env.PORT ? parseInt(process.env.PORT) : 2000;
 
 export const MONGODB_URI: string = process.env.MONGODB_URI || 'mongodb://localhost:27017/default_db';
 

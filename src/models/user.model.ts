@@ -9,9 +9,7 @@ const UserSchema: Schema = new Schema<UserType>(
         fullName: { type: String, required: true },
         role: {
           type: String,
-          enum: ["farmer", "consumer"],
-          default: "consumer",
-        },
+          enum: ["farmer", "consumer"],},
     },
     {
         timestamps: true,

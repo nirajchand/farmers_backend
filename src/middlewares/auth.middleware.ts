@@ -4,7 +4,6 @@ import { JWT_SECRET } from "../configs";
 import { IUser } from "../models/user.model";
 import { UserRepository } from "../repositories/user.repository";
 import { HttpError } from "../errors/http-error";
-import { success } from "zod";
 
 
 declare global{
@@ -31,8 +30,8 @@ export const authorizedMiddleware =
             if(!decodedToken || !decodedToken.id){
                 throw new HttpError(401,"Unathurized jwt unverified")
             }
-            const user = userRepository.findUserById(decodedToken.id)
-            if(!user) throw new HttpError(402,"Unauthorized user not found")
+            const user = await userRepository.findUserById(decodedToken.id)
+            if(!user) throw new HttpError(401,"Unauthorized user not found")
             req.user = user
             next();
         }catch(error: Error | any){
