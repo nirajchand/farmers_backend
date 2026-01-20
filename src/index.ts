@@ -4,12 +4,21 @@ import bodyParser from "body-parser";
 import { connectDatabase } from "./database/mangodb";
 import { PORT } from "./configs";
 import authRouter from "./routes/auth.routes"; 
-import { success } from "zod";
+import cors from 'cors'
 
 const app: Application = express();
 
+let corsOptions = {
+    origin: ["http://localhost:3000", "http://localhost:3002"],
+    optionsSuccessStatus: 200,
+    credentials: true
+};
+
+app.use(cors(corsOptions));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
+
 
 app.use("/api/auth",authRouter);
 app.get("/",(req:Request,res: Response) => {
