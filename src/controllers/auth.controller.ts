@@ -1,69 +1,97 @@
 import { UserService } from "../services/user.service";
-import { createUserDto, CreateUserDto,loginUserDTO,LoginUserDTO,userDto} from "../dtos/user.dto";
-import { Request,response,Response } from "express";
+import {
+  createUserDto,
+  CreateUserDto,
+  loginUserDTO,
+  LoginUserDTO,
+  userDto,
+} from "../dtos/user.dto";
+import { Request, Response } from "express";
 import z, { safeParse, success } from "zod";
+import { ConsumerProfileServices } from "../services/consumer.profile.service";
+import { CreateprofileDto } from "../dtos/consumer.profile.dto";
 
 let userService = new UserService();
+let consumerProfileService = new ConsumerProfileServices();
 
-export class AuthController{
-    async registerUser(req: Request, res:Response){
-        try{
-            const parseData = createUserDto.safeParse(req.body);
-            if(!parseData.success){
-                return res.status(400).json(
-                    {success : false, message: parseData.error.format()}
-                )
-            }
+export class AuthController {
+  async registerUser(req: Request, res: Response) {
+    try {
+      const parseData = createUserDto.safeParse(req.body);
+      console.log(parseData)
+      if (!parseData.success) {
+        return res.status(400).json({
+          success: false,
+          message: parseData.error.format(),
+        });
+      }
 
-            const userData: CreateUserDto = parseData.data
-            const newUser = await userService.createuser(userData);
-            return res.status(201).json(
-                {success: true ,message: "User Created", data: newUser}
-            )
-        }catch(error: Error | any){
-            return res.status(error.statusCode ?? 500).json(
-                {success: false , message: error.message || "Internal server error"}
-            )
+      const userData: CreateUserDto = parseData.data;
+      const newUser = await userService.createuser(userData);
+
+      if (newUser.role === "consumer") {
+        try {
+          const profileData: CreateprofileDto = {
+            userId: newUser._id.toString(),
+            fullName: newUser.fullName,
+            email: newUser.email,
+          };
+
+          await consumerProfileService.createConsumerProfile(profileData);
+        } catch (profileError) {
+          console.error("Profile creation failed:", profileError);
         }
+      }
+
+      return res.status(201).json({
+        success: true,
+        message: "User registered successfully",
+        data: newUser,
+      });
+    } catch (error: any) {
+      return res.status(error.statusCode ?? 500).json({
+        success: false,
+        message: error.message || "Internal server error",
+      });
     }
+  }
 
-    async loginUser(req: Request, res:Response){
-        try{
-            const parseData = loginUserDTO.safeParse(req.body);
-            if(!parseData.success){
-                return res.status(400).json(
-                    {success: false, message : z.prettifyError(parseData.error)}
-                )
-            }
+  async loginUser(req: Request, res: Response) {
+    try {
+      const parseData = loginUserDTO.safeParse(req.body);
+      if (!parseData.success) {
+        return res
+          .status(400)
+          .json({ success: false, message: z.prettifyError(parseData.error) });
+      }
 
-            const loginData: LoginUserDTO = parseData.data;
-            const{token, user} = await userService.loginUser(loginData);
-            return res.status(200).json(
-                {success: true, message: "Login Success", data: user, token}
-            )
-        }catch(error: Error | any){
-            return res.status(error.statusCode ?? 500).json(
-                {success: false, message: error.message || "Internal server error"}
-            )
-        }
-
+      const loginData: LoginUserDTO = parseData.data;
+      const { token, user } = await userService.loginUser(loginData);
+      return res
+        .status(200)
+        .json({ success: true, message: "Login Success", data: user, token });
+    } catch (error: Error | any) {
+      return res.status(error.statusCode ?? 500).json({
+        success: false,
+        message: error.message || "Internal server error",
+      });
     }
+  }
 
-    async getUserById(req: Request, res:Response){
-        try{
-            const id = req.params.id;
-            const user =  await userService.getUserById(id);
-            const parseData = userDto.safeParse(user)
-            return res.status(200).json(
-                {success: true, message: "User Found", parseData}
-            )
-        }catch(err: Error | any){
-            return res.status(err.statusCode ?? 500).json({
-                success : false, message : err.message || "Internal server error"
-            })
-        }
+  async getUserById(req: Request, res: Response) {
+    try {
+      const id = req.params.id;
+      const user = await userService.getUserById(id);
+      const parseData = userDto.safeParse(user);
+      return res
+        .status(200)
+        .json({ success: true, message: "User Found", parseData });
+    } catch (err: Error | any) {
+      return res.status(err.statusCode ?? 500).json({
+        success: false,
+        message: err.message || "Internal server error",
+      });
     }
-
-
+  }
 
 }
