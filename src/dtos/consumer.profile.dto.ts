@@ -30,9 +30,11 @@ export const createProfileDto = ProfileSchema.pick({
   email: true,
   phoneNumber: true,
   userLocation: true,
+  profile_image: true
 }).partial({
   phoneNumber: true,
   userLocation: true,
+  profile_image: true
 });
 
 export type CreateprofileDto = z.infer<typeof createProfileDto>;
