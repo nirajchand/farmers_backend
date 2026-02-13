@@ -2,15 +2,19 @@ import { ConsumerProfileModel, IConsumerProfile } from "../models/consumer.profi
 
 
 export interface IConsumerProfileRespository{
-    createConsumerProfile(data:Partial<IConsumerProfile>) : Promise<boolean>;
-    getProfile(userId: String) : Promise<IConsumerProfile | null>
-    updateProfile(userId: String,updatedData: Partial<IConsumerProfile>) : Promise<IConsumerProfile>
+    createConsumerProfile(data:Partial<IConsumerProfile>) : Promise<IConsumerProfile>;
+    getProfile(userId: string) : Promise<IConsumerProfile | null>
+    updateProfile(userId: string,updatedData: Partial<IConsumerProfile>) : Promise<IConsumerProfile>
+    deleteUser(userId:string) : Promise<boolean>
 }
 
 export class ConsumerProfileRepository implements IConsumerProfileRespository{
-    async createConsumerProfile(data: Partial<IConsumerProfile>): Promise<boolean> {
-        await ConsumerProfileModel.create(data);
-        return true;
+    async deleteUser(userId: string): Promise<boolean> {
+        const user = await ConsumerProfileModel.findByIdAndDelete(userId);
+        return user? true: false;
+    }
+    async createConsumerProfile(data: Partial<IConsumerProfile>): Promise<IConsumerProfile> {
+        return await ConsumerProfileModel.create(data);
     }
 
     
@@ -20,8 +24,10 @@ export class ConsumerProfileRepository implements IConsumerProfileRespository{
     }
 
 
-    async getProfile(userId: String): Promise<IConsumerProfile | null> {
+    async getProfile(userId: string): Promise<IConsumerProfile | null> {
         const user = await ConsumerProfileModel.findOne({"userId":userId });
         return user;
     }
+
+    
 }
