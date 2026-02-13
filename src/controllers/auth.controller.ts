@@ -8,17 +8,19 @@ import {
 } from "../dtos/user.dto";
 import { Request, Response } from "express";
 import z, { safeParse, success } from "zod";
-import { ConsumerProfileServices } from "../services/consumer.profile.service";
+import { ConsumerProfileServices } from "../services/consumer/consumer.profile.service";
 import { CreateprofileDto } from "../dtos/consumer.profile.dto";
+import { CreateFarmerProfileDto } from "../dtos/farmer.profile.dto";
+import { FarmerProfileServices } from "../services/farmer/farmer.services";
 
 let userService = new UserService();
 let consumerProfileService = new ConsumerProfileServices();
+let farmerProfileService = new FarmerProfileServices();
 
 export class AuthController {
   async registerUser(req: Request, res: Response) {
     try {
       const parseData = createUserDto.safeParse(req.body);
-      console.log(parseData)
       if (!parseData.success) {
         return res.status(400).json({
           success: false,
@@ -38,6 +40,20 @@ export class AuthController {
           };
 
           await consumerProfileService.createConsumerProfile(profileData);
+        } catch (profileError) {
+          console.error("Profile creation failed:", profileError);
+        }
+      }
+
+      if (newUser.role === "farmer") {
+        try {
+          const profileData: CreateFarmerProfileDto = {
+            userId: newUser._id.toString(),
+            fullName: newUser.fullName,
+            email: newUser.email,
+          };
+
+          await farmerProfileService.CreateFarmerProfile(profileData);
         } catch (profileError) {
           console.error("Profile creation failed:", profileError);
         }
@@ -66,6 +82,7 @@ export class AuthController {
       }
 
       const loginData: LoginUserDTO = parseData.data;
+
       const { token, user } = await userService.loginUser(loginData);
       return res
         .status(200)
@@ -94,4 +111,37 @@ export class AuthController {
     }
   }
 
+  async requestPasswordChange(req: Request, res: Response) {
+    try {
+      const { email } = req.body;
+      const user = await userService.sendResetPasswordEmail(email);
+      return res.status(200).json({
+        success: true,
+        data: user,
+        message: "Password reset email sent",
+      });
+    } catch (error: Error | any) {
+      return res.status(error.statusCode || 500).json({
+        success: false,
+        message: error.message || "Internal Server Error",
+      });
+    }
+  }
+
+  async resetPassword(req: Request, res: Response) {
+    try {
+      const token = req.params.token;
+      const { newPassword } = req.body;
+      await userService.resetPassword(token, newPassword);
+      return res.status(200).json({
+        success: true,
+        message: "Password has been reset successfully.",
+      });
+    } catch (error: Error | any) {
+      return res.status(error.statusCode ?? 500).json({
+        success: false,
+        message: error.message || "Internal Server Error",
+      });
+    }
+  }
 }

@@ -8,11 +8,20 @@ import {
 import { Request, Response, NextFunction } from "express";
 import z from "zod";
 import { AdminServices } from "../../services/admin/admin.services";
-import { ConsumerProfileServices } from "../../services/consumer.profile.service";
+import { ConsumerProfileServices } from "../../services/consumer/consumer.profile.service";
 import { CreateprofileDto } from "../../dtos/consumer.profile.dto";
+import { CreateFarmerProfileDto } from "../../dtos/farmer.profile.dto";
+import { FarmerProfileServices } from "../../services/farmer/farmer.services";
+import { HttpError } from "../../errors/http-error";
 
 let adminUserService = new AdminServices();
 let consumerProfileServices = new ConsumerProfileServices();
+let farmerProfileServices = new FarmerProfileServices();
+
+interface QueryParams {
+  page?: string;
+  size?: string;
+}
 
 export class AdminUserController {
   async createUser(req: Request, res: Response, next: NextFunction) {
@@ -43,6 +52,21 @@ export class AdminUserController {
           console.error("Profile creation failed:", profileError);
         }
       }
+
+      if (newUser.role === "farmer") {
+        try {
+          const profileData: CreateFarmerProfileDto = {
+            userId: newUser._id.toString(),
+            fullName: newUser.fullName,
+            email: newUser.email,
+            profile_image: newUser.profile_image,
+          };
+
+          await farmerProfileServices.CreateFarmerProfile(profileData);
+        } catch (profileError) {
+          console.error("Profile creation failed:", profileError);
+        }
+      }
       return res
         .status(201)
         .json({ success: true, message: "User Created", data: newUser });
@@ -56,10 +80,17 @@ export class AdminUserController {
 
   async getAllUsers(req: Request, res: Response, next: NextFunction) {
     try {
-      const users = await adminUserService.getAllUsers();
-      return res
-        .status(200)
-        .json({ success: true, data: users, message: "All Users Retrieved" });
+      const { page, size }: QueryParams = req.query;
+      const { users, pagination } = await adminUserService.getAllUsers({
+        page,
+        size,
+      });
+      return res.status(200).json({
+        success: true,
+        data: users,
+        pagination,
+        message: "All Users Retrieved",
+      });
     } catch (error: Error | any) {
       return res.status(error.statusCode ?? 500).json({
         success: false,
@@ -71,21 +102,28 @@ export class AdminUserController {
   async updateUser(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.params.id;
-      const parsedData = updateUserDto.safeParse(req.body); // validate request body
-      if (!parsedData.success) {
-        // validation failed
-        return res
-          .status(400)
-          .json({ success: false, message: z.prettifyError(parsedData.error) });
-      }
+      // const parsedData = updateUserDto.safeParse(req.body); // validate request body
+      // console.log("here in backend: ", parsedData)
+      // if (!parsedData.success) {
+      //   // validation failed
+      //   return res
+      //     .status(400)
+      //     .json({ success: false, message: z.prettifyError(parsedData.error) });
+      // }
+
+      const data = req.body;
 
       if (req.file) {
-        parsedData.data.profile_image = `/uploads/${req.file.filename}`;
+        data.profile_image = `/uploads/${req.file.filename}`;
       }
-      const updateData: UpdateUserDto = parsedData.data;
-      const updatedUser = await adminUserService.updateUser(userId, updateData);
+
+      // const updateData: UpdateUserDto = parsedData.data;
+      const updatedUser = await adminUserService.updateUser(userId, data);
       if (updatedUser.data.role == "consumer") {
-        await consumerProfileServices.updateConsumerProfile(updateData, userId);
+        await consumerProfileServices.updateConsumerProfile(data, userId);
+      }
+      if (updatedUser.data.role == "farmer") {
+        await farmerProfileServices.updateFarmerProfile(data, userId);
       }
       return res
         .status(200)
@@ -116,10 +154,27 @@ export class AdminUserController {
     }
   }
 
-  async getUserById(req: Request, res: Response, next: NextFunction) {
+  async getConsumerById(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.params.id;
-      const user = await adminUserService.getUserById(userId);
+      console.log("here is the user id", userId);
+      const user = await adminUserService.getConsumerById(userId);
+      console.log("here is the userdata", user);
+
+      return res
+        .status(200)
+        .json({ success: true, data: user, message: "Single User Retrieved" });
+    } catch (error: Error | any) {
+      return res.status(error.statusCode ?? 500).json({
+        success: false,
+        message: error.message || "Internal Server Error",
+      });
+    }
+  }
+  async getFarmerById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.params.id;
+      const user = await adminUserService.getFarmerById(userId);
       return res
         .status(200)
         .json({ success: true, data: user, message: "Single User Retrieved" });
