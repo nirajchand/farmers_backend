@@ -1,11 +1,11 @@
-import {UpdateprofileDto,CreateprofileDto } from "../dtos/consumer.profile.dto";
-import { HttpError } from "../errors/http-error";
-import { ConsumerProfileRepository } from "../repositories/consumer.profile.respository";
+import {UpdateprofileDto,CreateprofileDto } from "../../dtos/consumer.profile.dto";
+import { HttpError } from "../../errors/http-error";
+import { ConsumerProfileRepository } from "../../repositories/consumer.profile.respository";
 
 let consumerProfileRepository = new ConsumerProfileRepository();
 
 export class ConsumerProfileServices {
-  async getConsumerProfile(userId: String ) {
+  async getConsumerProfile(userId: string ) {
     const user = await consumerProfileRepository.getProfile(userId);
     if (!user) {
       throw new HttpError(404, "User not Found");
@@ -18,7 +18,7 @@ export class ConsumerProfileServices {
       userId,
       data,
     );
-
+    
     if (!isUpdated) {
       throw new HttpError(404, "User not found or no changes made");
     }
