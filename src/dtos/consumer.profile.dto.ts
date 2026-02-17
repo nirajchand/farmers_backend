@@ -1,13 +1,6 @@
 import { ProfileData, ProfileSchema } from "../types/consumer.profile";
 import z from "zod";
 
-// export const getProfileDto = ProfileSchema.pick({
-//   userId: true,
-// });
-
-// export type GetProfileDto = z.infer<typeof getProfileDto >;
-
-
 export const updateProfileDto = ProfileSchema.pick({
   fullName: true,
   email: true,
