@@ -102,22 +102,11 @@ export class AdminUserController {
   async updateUser(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.params.id;
-      // const parsedData = updateUserDto.safeParse(req.body); // validate request body
-      // console.log("here in backend: ", parsedData)
-      // if (!parsedData.success) {
-      //   // validation failed
-      //   return res
-      //     .status(400)
-      //     .json({ success: false, message: z.prettifyError(parsedData.error) });
-      // }
-
       const data = req.body;
-
       if (req.file) {
         data.profile_image = `/uploads/${req.file.filename}`;
       }
 
-      // const updateData: UpdateUserDto = parsedData.data;
       const updatedUser = await adminUserService.updateUser(userId, data);
       if (updatedUser.data.role == "consumer") {
         await consumerProfileServices.updateConsumerProfile(data, userId);
@@ -157,9 +146,7 @@ export class AdminUserController {
   async getConsumerById(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.params.id;
-      console.log("here is the user id", userId);
       const user = await adminUserService.getConsumerById(userId);
-      console.log("here is the userdata", user);
 
       return res
         .status(200)

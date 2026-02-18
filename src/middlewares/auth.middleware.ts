@@ -62,3 +62,41 @@ export const adminMiddleware = async (
       .json({ success: false, message: err.message });
   }
 };
+export const consumerMidddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    if (!req.user) {
+      throw new HttpError(401, "Unauthorized no user info");
+    }
+    if (req.user.role !== "consumer") {
+      throw new HttpError(403, "Forbidden not consumer");
+    }
+    return next();
+  } catch (err: Error | any) {
+    return res
+      .status(err.statusCode || 500)
+      .json({ success: false, message: err.message });
+  }
+};
+export const farmerMiddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    if (!req.user) {
+      throw new HttpError(401, "Unauthorized no user info");
+    }
+    if (req.user.role !== "farmer") {
+      throw new HttpError(403, "Forbidden not farmer");
+    }
+    return next();
+  } catch (err: Error | any) {
+    return res
+      .status(err.statusCode || 500)
+      .json({ success: false, message: err.message });
+  }
+};

@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
-import { ProductType } from "../types/product";
+import { Product } from "../types/product";
 
-export interface IProductModel extends Omit<ProductType, "farmerId">, Document {
+export interface IProductModel extends Omit<Product, "farmerId">, Document {
   farmerId: mongoose.Types.ObjectId | string;
   _id: mongoose.Types.ObjectId;
   createdAt: Date;
@@ -29,6 +29,11 @@ const productSchema: Schema = new Schema<IProductModel>(
     },
 
     unitType: {
+      type: String,
+      required: true,
+    },
+
+    status: {
       type: String,
       required: true,
     },

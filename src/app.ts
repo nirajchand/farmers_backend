@@ -4,6 +4,7 @@ import authRouter from "./routes/auth.routes";
 import consumerProfileRouter from "./routes/consumer/consumer.profile.route";
 import farmerProfileRouter from "./routes/farmer/farmer.profile.route"
 import adminUserRoutes from "./routes/admin/admin.routes";
+import productRoutes from "./routes/farmer/product.route"
 import cors from 'cors'
 import path from "path";
 
@@ -23,11 +24,11 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use("/uploads",express.static(path.join(__dirname,'../uploads')));
 
 
-
 app.use("/api/auth",authRouter);
 app.use("/api/consumer",consumerProfileRouter)
 app.use("/api/farmer",farmerProfileRouter)
 app.use('/api/admin/users', adminUserRoutes);
+app.use("/api/farmer/product", productRoutes);
 
 app.get("/",(req:Request,res: Response) => {
     res.status(200).json({success: true, message: "Welcome to API"})
