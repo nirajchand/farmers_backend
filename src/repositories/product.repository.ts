@@ -1,9 +1,18 @@
+import { QueryFilter } from "mongoose";
 import { IProductModel, ProductModel } from "../models/product.model";
 
 export interface IProduct {
   createProduct(productData: Partial<IProductModel>): Promise<IProductModel>;
   getProductById(productId: string): Promise<IProductModel | null>;
-  getAllProducts(): Promise<IProductModel[]>;
+  getAllProducts({
+    page,
+    size,
+    searchTerm,
+  }: {
+    page: number;
+    size: number;
+    searchTerm?: string;
+  }): Promise<{ products: IProductModel[]; total: number }>;
   updateProduct(
     productId: string,
     updatedData: Partial<IProductModel>,
@@ -23,8 +32,31 @@ export class ProductRepository implements IProduct {
     const product = await ProductModel.findById(productId);
     return product;
   }
-  async getAllProducts(): Promise<IProductModel[]> {
-    throw new Error("Method not implemented.");
+
+  async getAllProducts({
+    page,
+    size,
+    searchTerm,
+  }: {
+    page: number;
+    size: number;
+    searchTerm?: string;
+  }): Promise<{ products: IProductModel[]; total: number }> {
+    let filter: QueryFilter<IProductModel> = {}
+
+    if(searchTerm){
+      filter = {productName: {$regex: searchTerm, options: "i"}}
+    }
+
+    const [products, total] = await Promise.all([
+      ProductModel.find(filter)
+        .skip((page-1)*size)
+        .limit(size),
+      ProductModel.countDocuments(filter)
+    ])
+
+    return {products,total};
+
   }
 
   async updateProduct(

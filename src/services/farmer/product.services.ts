@@ -37,18 +37,36 @@ export class ProductServices {
     if (!product) {
       throw new HttpError(404, "product not found");
     }
-
     const result = await productRepository.deleteProduct(productId);
     return result;
   }
 
-
-
-  async getProductsByFarmerId(farmerId: string){
+  async getProductsByFarmerId(farmerId: string) {
     const products = await productRepository.getProductsByFarmerId(farmerId);
-    if(!products){
-        throw new HttpError(404, "No products added")
+    if (!products) {
+      throw new HttpError(404, "No products added");
     }
     return products;
+  }
+
+  async getAllProducts(page?: string, size?: string, searchTerm?: string) {
+    const currentPage = page ? parseInt(page) : 1;
+    const pageSize = size ? parseInt(size) : 10;
+    const currentSearch = searchTerm || "";
+
+    const { products, total } = await productRepository.getAllProducts({
+      page: currentPage,
+      size: pageSize,
+      searchTerm: currentSearch,
+    });
+
+    const pagination = {
+      page: currentPage,
+      size: pageSize,
+      total,
+      totalPages: Math.ceil(total / pageSize),
+    };
+
+    return {products,pagination }
   }
 }
