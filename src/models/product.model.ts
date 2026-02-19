@@ -12,7 +12,7 @@ const productSchema: Schema = new Schema<IProductModel>(
   {
     farmerId: {
       type: Schema.Types.ObjectId,
-      ref: "Farmer_Profile",
+      ref: "Farmer_Profiles",
       required: true,
     },
 

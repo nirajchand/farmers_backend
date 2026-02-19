@@ -26,4 +26,4 @@ const FarmerProfileSchema: Schema = new Schema<IFarmerProfile>(
     }
 )
 
-export const FarmerProfileModel = mongoose.model<IFarmerProfile>("Farmer_Profile", FarmerProfileSchema)
+export const FarmerProfileModel = mongoose.model<IFarmerProfile>("Farmer_Profiles", FarmerProfileSchema)

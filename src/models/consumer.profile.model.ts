@@ -23,4 +23,4 @@ const ProfileSchema: Schema = new Schema<IConsumerProfile>(
     }
 )
 
-export const ConsumerProfileModel = mongoose.model<IConsumerProfile>("consumer_profile",ProfileSchema)
+export const ConsumerProfileModel = mongoose.model<IConsumerProfile>("consumer_profiles",ProfileSchema)
