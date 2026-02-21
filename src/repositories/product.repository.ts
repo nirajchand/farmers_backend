@@ -29,7 +29,7 @@ export class ProductRepository implements IProduct {
     return product;
   }
   async getProductById(productId: string): Promise<IProductModel | null> {
-    const product = await ProductModel.findById(productId).populate("farmerId","_id farmName farmLocation phoneNumber description description");
+    const product = await ProductModel.findById(productId).populate("farmerId","_id farmName farmLocation phoneNumber description");
     return product;
   }
 
@@ -51,7 +51,7 @@ export class ProductRepository implements IProduct {
     const [products, total] = await Promise.all([
       ProductModel.find(filter)
         .skip((page-1)*size)
-        .limit(size),
+        .limit(size).populate("farmerId","_id farmName farmLocation phoneNumber description"),
       ProductModel.countDocuments(filter)
     ])
 
