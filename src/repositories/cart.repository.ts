@@ -28,9 +28,12 @@ export class CartRepository {
         quantity,
       });
     }
-
     return cart.save();
   }
+
+
+
+  
   async removeItem(
     consumerId: string,
     cartItemId: string,
@@ -55,7 +58,9 @@ export class CartRepository {
     if (!item) throw new Error("Product not in cart");
 
     item.quantity = quantity;
-    return cart.save();
+    const savedCart = await cart.save();
+    await savedCart.populate("items.productId");
+    return savedCart;
   }
 
   async clearCart(consumerId: string): Promise<ICartModel> {

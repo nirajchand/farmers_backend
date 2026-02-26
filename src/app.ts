@@ -7,6 +7,7 @@ import adminUserRoutes from "./routes/admin/admin.routes";
 import productRoutes from "./routes/farmer/product.route";
 import cartRoutes from "./routes/consumer/cart.route";
 import orderProduct from "./routes/consumer/order.routes";
+import farmerOrder from "./routes/farmer/order.route";
 import cors from "cors";
 import path from "path";
 
@@ -37,6 +38,7 @@ app.use("/api/admin/users", adminUserRoutes);
 app.use("/api/farmer/product", productRoutes);
 app.use("/api/consumer/cart", cartRoutes);
 app.use("/api/consumer/order", orderProduct);
+app.use("/api/farmer/order", farmerOrder);
 
 app.get("/", (req: Request, res: Response) => {
   res.status(200).json({ success: true, message: "Welcome to API" });

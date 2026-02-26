@@ -22,6 +22,13 @@ export interface IProduct {
 }
 
 export class ProductRepository implements IProduct {
+  async updateProductQuantity(productId: string, quantity: number) {
+    return ProductModel.findByIdAndUpdate(
+      productId,
+      { $set: { quantity } },
+      { new: true },
+    );
+  }
   async createProduct(
     productData: Partial<IProductModel>,
   ): Promise<IProductModel> {
@@ -29,7 +36,10 @@ export class ProductRepository implements IProduct {
     return product;
   }
   async getProductById(productId: string): Promise<IProductModel | null> {
-    const product = await ProductModel.findById(productId).populate("farmerId","_id farmName farmLocation phoneNumber description");
+    const product = await ProductModel.findById(productId).populate(
+      "farmerId",
+      "_id farmName farmLocation phoneNumber description",
+    );
     return product;
   }
 
@@ -42,21 +52,24 @@ export class ProductRepository implements IProduct {
     size: number;
     searchTerm?: string;
   }): Promise<{ products: IProductModel[]; total: number }> {
-    let filter: QueryFilter<IProductModel> = {}
+    let filter: QueryFilter<IProductModel> = {};
 
-    if(searchTerm){
-      filter = {productName: {$regex: searchTerm, options: "i"}}
+    if (searchTerm) {
+      filter = { productName: { $regex: searchTerm, $options: "i" } };
     }
 
     const [products, total] = await Promise.all([
       ProductModel.find(filter)
-        .skip((page-1)*size)
-        .limit(size).populate("farmerId","_id farmName farmLocation phoneNumber description"),
-      ProductModel.countDocuments(filter)
-    ])
+        .skip((page - 1) * size)
+        .limit(size)
+        .populate(
+          "farmerId",
+          "_id farmName farmLocation phoneNumber description",
+        ),
+      ProductModel.countDocuments(filter),
+    ]);
 
-    return {products,total};
-
+    return { products, total };
   }
 
   async updateProduct(

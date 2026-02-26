@@ -1,36 +1,21 @@
 import { Router } from "express";
 import {
   authorizedMiddleware,
-  consumerMidddleware,
   farmerMiddleware,
 } from "../../middlewares/auth.middleware";
 import { OrderController } from "../../controllers/consumer/order.controller";
 
-
 const router = Router();
 const orderController = new OrderController();
 
-// Consumer
-router.post(
-  "/placeOrder",
-  authorizedMiddleware,
-  consumerMidddleware,
-  orderController.placeOrder,
-);
 
+// Farmer
 router.get(
-  "/my",
+  "/farmer",
   authorizedMiddleware,
-  consumerMidddleware,
-  orderController.getMyOrders,
+  farmerMiddleware,
+  orderController.getFarmerOrders,
 );
-
-router.patch(
-  "/:id/cancel",
-  authorizedMiddleware,
-  consumerMidddleware,
-  orderController.cancelOrder,
-);
-
+router.patch("/updateOrderStatus/:orderId", authorizedMiddleware,orderController.updateOrderStatus)
 
 export default router;

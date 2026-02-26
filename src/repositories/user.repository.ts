@@ -28,11 +28,13 @@ export class UserRepository implements IUserRepository {
     page: number;
     size: number;
   }): Promise<{ users: IUser[]; total: number }> {
+    const filter = { role: { $ne: "admin" } }; 
+
     const [users, total] = await Promise.all([
-      UserModel.find()
+      UserModel.find(filter)
         .skip((page - 1) * size)
         .limit(size),
-      UserModel.countDocuments(),
+      UserModel.countDocuments(filter),
     ]);
 
     return { users, total };

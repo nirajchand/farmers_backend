@@ -12,10 +12,7 @@ export class OrderController {
   // POST /api/consumer/order
   placeOrder = async (req: Request, res: Response): Promise<void> => {
     try {
-
-
-      console.log("here i get the data", req.body);
-
+      console.log("Here is requested body", req.body)
       const parsed = placeOrderDto.parse(req.body);
       const userId = req.user?._id;
 
@@ -84,13 +81,11 @@ export class OrderController {
   updateOrderStatus = async (req: Request, res: Response): Promise<void> => {
     try {
       const { orderStatus } = req.body;
-      const requesterId = req.user?._id;
       const requesterRole = req.user?.role;
 
       const updated = await this.orderService.updateOrderStatus(
-        req.params.id,
+        req.params.orderId,
         orderStatus,
-        requesterId,
         requesterRole,
       );
 

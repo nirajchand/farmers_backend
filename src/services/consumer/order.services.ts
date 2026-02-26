@@ -39,16 +39,23 @@ export class OrderService {
     // Build order items
     const orderItems: Omit<IOrderItem, "_id">[] = [];
     for (const item of cart.items) {
-      // Fetch product from DB
-      console.log("Cart data:", item);
-
       const product = await this.productRepo.getProductById(
         item.productId._id.toString(),
       );
       if (!product) throw new Error(`Product ${item.productId} not found`);
 
+      const newQuantity = product.quantity - item.quantity;
+      if (newQuantity < 0) {
+        throw new Error(`Not enough stock for product ${product.productName}`);
+      }
+
+      // Pass the correct product._id here
+      await this.productRepo.updateProductQuantity(
+        product._id.toString(),
+        newQuantity,
+      );
       orderItems.push({
-        productId: new mongoose.Types.ObjectId(product._id), // ONLY ObjectId
+        productId: new mongoose.Types.ObjectId(product._id),
         farmerId: new mongoose.Types.ObjectId(product.farmerId),
         productName: product.productName,
         price: product.price,
@@ -83,44 +90,50 @@ export class OrderService {
     return order;
   }
 
-  /**
-   * Get a single order by its ID
-   */
   async getOrderById(orderId: string): Promise<IOrder> {
     const order = await this.orderRepo.findById(orderId);
     if (!order) throw new Error("Order not found.");
     return order;
   }
 
-  /**
-   * Get all orders for a consumer
-   */
   async getConsumerOrders(consumerId: string): Promise<IOrder[]> {
-    return await this.orderRepo.findByConsumer(consumerId);
+    const orders = await this.orderRepo.findByConsumer(consumerId);
+
+    return orders.map((order) => {
+      const obj = order.toObject();
+
+      return {
+        ...obj,
+        paymentStatus:
+          obj.orderStatus === "Delivered" ? "Paid" : obj.paymentStatus,
+      };
+    });
   }
 
-  /**
-   * Get all orders relevant to a farmer
-   */
   async getFarmerOrders(farmerId: string): Promise<IOrder[]> {
-    return await this.orderRepo.findByFarmer(farmerId);
-  }
+    const orders = await this.orderRepo.findByFarmer(farmerId);
 
-  /**
-   * Get all orders (admin view)
-   */
+    return orders.map((order) => {
+      const obj = order.toObject();
+
+      return {
+        ...obj,
+        paymentStatus:
+          obj.orderStatus === "Delivered" ? "Paid" : obj.paymentStatus,
+        items: obj.items.filter(
+          (item: any) => item.farmerId.toString() === farmerId,
+        ),
+      };
+    });
+  }
   async getAllOrders(): Promise<IOrder[]> {
     return await this.orderRepo.findAll();
   }
 
-  /**
-   * Update order status with role-based rules
-   */
   async updateOrderStatus(
     orderId: string,
     status: IOrder["orderStatus"],
-    requesterId: string,
-    requesterRole: "admin" | "farmer" | "consumer",
+    requesterRole: "farmer" | "consumer",
   ): Promise<IOrder> {
     const order = await this.orderRepo.findById(orderId);
     if (!order) throw new Error("Order not found.");
@@ -137,6 +150,7 @@ export class OrderService {
         "Accepted",
         "Shipped",
         "Cancelled",
+        "Delivered",
       ];
       if (!allowed.includes(status))
         throw new Error("Farmers can only accept, ship, or cancel orders.");
@@ -146,9 +160,6 @@ export class OrderService {
     return updated!;
   }
 
-  /**
-   * Update payment status of an order
-   */
   async updatePaymentStatus(
     orderId: string,
     paymentStatus: IOrder["paymentStatus"],
@@ -163,9 +174,6 @@ export class OrderService {
     return updated!;
   }
 
-  /**
-   * Consumer cancels an order
-   */
   async cancelOrder(orderId: string, consumerId: string): Promise<IOrder> {
     const order = await this.orderRepo.findById(orderId);
     if (!order) throw new Error("Order not found.");

@@ -20,7 +20,7 @@ export class OrderRepository {
   async findByFarmer(farmerId: string): Promise<IOrder[]> {
     return await OrderModel.find({ "items.farmerId": farmerId }).sort({
       createdAt: -1,
-    });
+    }).populate("consumerId", "fullName email phoneNumber");
   }
 
   async findAll(filters: Record<string, unknown> = {}): Promise<IOrder[]> {

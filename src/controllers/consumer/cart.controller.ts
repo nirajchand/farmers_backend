@@ -13,6 +13,7 @@ export class CartController {
 
   async addItem(req: Request, res: Response) {
     const userId = req.user?._id;
+    console.log("here is get body", req.body)
     const { productId, quantity } = req.body;
     const cart = await cartService.addToCart(userId, productId, quantity);
     res.json(cart);
