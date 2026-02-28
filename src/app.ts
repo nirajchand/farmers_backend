@@ -19,7 +19,7 @@ app.use((req, res, next) => {
 });
 
 let corsOptions = {
-  origin: ["http://localhost:3000", "http://localhost:3002"],
+  origin: ["http://localhost:3000", "http://localhost:3002","https://farmers-mocha.vercel.app"],
   optionsSuccessStatus: 200,
   credentials: true,
 };
