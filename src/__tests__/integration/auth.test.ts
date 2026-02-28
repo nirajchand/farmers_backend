@@ -4,10 +4,7 @@ import { UserModel } from "../../models/user.model";
 import { ConsumerProfileModel } from "../../models/consumer.profile.model";
 
 describe("Authentication Integration Tests", () => {
-  // descibe test suite
-  // what to run
   const testUser = {
-    // according to your UserModel
     fullName: "Test",
     email: "test@example.com",
     password: "password123",
@@ -22,11 +19,7 @@ describe("Authentication Integration Tests", () => {
 
   // ------------------------------ Register Test ------------------------------------
   describe("POST /api/auth/register", () => {
-    // nested describe block
-    test(// actual test case
-    "should register a new user", async () => {
-      // test case description
-      // test case implementation
+    test("should register a new user", async () => {
       const response = await request(app)
         .post("/api/auth/register")
         .send(testUser);
@@ -74,11 +67,17 @@ describe("Authentication Integration Tests", () => {
     });
   });
 
-  // ----------------------Login Test-----------------------------------
+  // ---------------------- Login Test -----------------------------------
   describe("POST /api/auth/login", () => {
     beforeEach(async () => {
       await UserModel.deleteMany({ email: testUser.email });
+      await ConsumerProfileModel.deleteMany({ email: testUser.email });
       await request(app).post("/api/auth/register").send(testUser);
+    });
+
+    afterEach(async () => {
+      await UserModel.deleteMany({ email: testUser.email });
+      await ConsumerProfileModel.deleteMany({ email: testUser.email });
     });
 
     test("Should login to registered user", async () => {
@@ -91,7 +90,7 @@ describe("Authentication Integration Tests", () => {
       expect(response.body).toHaveProperty("token");
     });
 
-    test("should not login with wrong credentails", async () => {
+    test("should not login with wrong credentials", async () => {
       const response = await request(app).post("/api/auth/login").send({
         email: "wrong@gmail.com",
         password: "123456",
@@ -109,6 +108,46 @@ describe("Authentication Integration Tests", () => {
 
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty("message", "Invalid Credentials");
+    });
+
+    test("should not login with wrong email", async () => {
+      const response = await request(app).post("/api/auth/login").send({
+        email: "wrong@gmail.com",
+        password: testUser.password,
+      });
+
+      expect(response.status).toBe(404);
+    });
+
+
+    test("should not login with empty credentials", async () => {
+      // Sending completely empty body should be rejected before hitting DB
+      const response = await request(app).post("/api/auth/login").send({});
+
+      expect(response.status).toBe(400);
+    });
+
+    test("should return a valid JWT token structure on successful login", async () => {
+      // Verifies the token is a proper JWT (three base64 segments separated by dots)
+      const response = await request(app).post("/api/auth/login").send({
+        email: testUser.email,
+        password: testUser.password,
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("token");
+
+      const tokenParts = response.body.token.split(".");
+      expect(tokenParts).toHaveLength(3); // header.payload.signature
+    });
+
+    test("should not login with missing password field", async () => {
+      // Only email provided — password is omitted entirely
+      const response = await request(app).post("/api/auth/login").send({
+        email: testUser.email,
+      });
+
+      expect(response.status).toBe(400);
     });
   });
 });

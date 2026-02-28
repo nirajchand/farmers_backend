@@ -36,6 +36,7 @@ describe("admin crud integration tests", () => {
         ],
       },
     });
+    
     // first register admin
     await request(app).post("/api/auth/register").send(adminDetails);
     await request(app).post("/api/auth/register").send(testUser);

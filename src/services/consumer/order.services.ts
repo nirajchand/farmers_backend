@@ -116,16 +116,25 @@ export class OrderService {
     return orders.map((order) => {
       const obj = order.toObject();
 
+      const farmerItems = obj.items.filter(
+        (item: any) => item.farmerId.toString() === farmerId,
+      );
+
+      const farmerTotalAmount = farmerItems.reduce(
+        (sum: number, item: any) => sum + item.subtotal,
+        0,
+      );
+
       return {
         ...obj,
+        items: farmerItems,
+        totalAmount: farmerTotalAmount,
         paymentStatus:
           obj.orderStatus === "Delivered" ? "Paid" : obj.paymentStatus,
-        items: obj.items.filter(
-          (item: any) => item.farmerId.toString() === farmerId,
-        ),
       };
     });
   }
+  
   async getAllOrders(): Promise<IOrder[]> {
     return await this.orderRepo.findAll();
   }

@@ -16,6 +16,6 @@ router.get(
   farmerMiddleware,
   orderController.getFarmerOrders,
 );
-router.patch("/updateOrderStatus/:orderId", authorizedMiddleware,orderController.updateOrderStatus)
+router.put("/updateOrderStatus/:orderId", authorizedMiddleware,orderController.updateOrderStatus)
 
 export default router;

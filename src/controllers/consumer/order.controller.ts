@@ -9,10 +9,8 @@ export class OrderController {
   private consumerProfileServices = new ConsumerProfileServices();
   private farmerProfileServices = new FarmerProfileServices();
 
-  // POST /api/consumer/order
   placeOrder = async (req: Request, res: Response): Promise<void> => {
     try {
-      console.log("Here is requested body", req.body)
       const parsed = placeOrderDto.parse(req.body);
       const userId = req.user?._id;
 
@@ -32,7 +30,6 @@ export class OrderController {
     }
   };
 
-  // GET /api/consumer/order/my
   getMyOrders = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = req.user?._id;
@@ -50,7 +47,6 @@ export class OrderController {
     }
   };
 
-  // GET /api/consumer/order/farmer
   getFarmerOrders = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = req.user?._id;
@@ -67,7 +63,6 @@ export class OrderController {
     }
   };
 
-  // GET /api/consumer/order/:id
   getOrderById = async (req: Request, res: Response): Promise<void> => {
     try {
       const order = await this.orderService.getOrderById(req.params.id);
@@ -77,7 +72,6 @@ export class OrderController {
     }
   };
 
-  // PATCH /api/consumer/order/:id/status
   updateOrderStatus = async (req: Request, res: Response): Promise<void> => {
     try {
       const { orderStatus } = req.body;
@@ -95,7 +89,6 @@ export class OrderController {
     }
   };
 
-  // PATCH /api/consumer/order/:id/payment
   updatePaymentStatus = async (req: Request, res: Response): Promise<void> => {
     try {
       const { paymentStatus } = req.body;
@@ -111,7 +104,6 @@ export class OrderController {
     }
   };
 
-  // PATCH /api/consumer/order/:id/cancel
   cancelOrder = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = req.user?._id;

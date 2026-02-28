@@ -3,6 +3,7 @@ import app from "../../app";
 import { ConsumerProfileModel } from "../../models/consumer.profile.model";
 import path from "path";
 import { UserModel } from "../../models/user.model";
+import { FarmerProfileModel } from "../../models/farmer.profile.model";
 
 describe("Consumer Profile Integration Tests", () => {
   const testUser = {
@@ -35,6 +36,7 @@ describe("Consumer Profile Integration Tests", () => {
     await ConsumerProfileModel.deleteMany({ email: testUser.email });
     await UserModel.deleteMany({ email: testUser.email });
   });
+
 
   // ------------------------------ GET Profile Tests ----------------------------
   describe("GET /api/consumer/getProfile", () => {
@@ -103,6 +105,15 @@ describe("Consumer Profile Integration Tests", () => {
         .field("email", "invalid-email-format");
 
       expect(res.status).toBe(400);
+    });
+
+    test("should fail when no update fields are provided", async () => {
+      const res = await request(app)
+        .put("/api/consumer/updateProfile")
+        .set("Authorization", `Bearer ${token}`);
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
     });
   });
 });

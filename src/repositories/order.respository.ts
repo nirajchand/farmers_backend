@@ -14,13 +14,17 @@ export class OrderRepository {
   }
 
   async findByConsumer(consumerId: string): Promise<IOrder[]> {
-    return await OrderModel.find({ consumerId }).sort({ createdAt: -1 });
+    return await OrderModel.find({ consumerId })
+      .sort({ createdAt: -1 })
+      .populate("consumerId", "fullName email phoneNumber");
   }
 
   async findByFarmer(farmerId: string): Promise<IOrder[]> {
-    return await OrderModel.find({ "items.farmerId": farmerId }).sort({
-      createdAt: -1,
-    }).populate("consumerId", "fullName email phoneNumber");
+    return await OrderModel.find({ "items.farmerId": farmerId })
+      .sort({
+        createdAt: -1,
+      })
+      .populate("consumerId", "fullName email phoneNumber");
   }
 
   async findAll(filters: Record<string, unknown> = {}): Promise<IOrder[]> {

@@ -81,9 +81,25 @@ export class UserService {
     if (!user) {
       throw new HttpError(404, "User not found");
     }
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" }); // 1 hour expiry
+    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
     const resetLink = `${CLIENT_URL}/reset-password?token=${token}`;
-    const html = `<p>Click <a href="${resetLink}">here</a> to reset your password. This link will expire in 1 hour.</p>`;
+    const html = `
+  <p>You requested to reset your password.</p>
+
+  <p><strong>Reset on Website:</strong><br/>
+  <a href="${resetLink}">Click here to reset your password</a></p>
+
+  <hr/>
+
+  <p><strong>Reset in Mobile App:</strong></p>
+  <p>Open the app and enter this reset token:</p>
+
+  <p style="font-family: monospace; font-size: 16px;">
+    <strong>${token}</strong>
+  </p>
+
+  <p>This token will expire in 1 hour.</p>
+`;
     await sendEmail(user.email, "Password Reset", html);
     return user;
   }
