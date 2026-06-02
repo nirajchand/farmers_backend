@@ -12,7 +12,6 @@ import { ConsumerProfileServices } from "../../services/consumer/consumer.profil
 import { CreateprofileDto } from "../../dtos/consumer.profile.dto";
 import { CreateFarmerProfileDto } from "../../dtos/farmer.profile.dto";
 import { FarmerProfileServices } from "../../services/farmer/farmer.services";
-import { HttpError } from "../../errors/http-error";
 
 let adminUserService = new AdminServices();
 let consumerProfileServices = new ConsumerProfileServices();

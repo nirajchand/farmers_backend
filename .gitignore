@@ -82,5 +82,3 @@ dist
 !.yarn/sdks
 !.yarn/versions
 
-# Ignore uploads folder
-uploads/

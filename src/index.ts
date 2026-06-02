@@ -9,7 +9,6 @@ async function startServer(){
         ()=>{
             console.log(`Server start: http://localhost:${PORT}`)
         }
-
     )
 }
 startServer();
