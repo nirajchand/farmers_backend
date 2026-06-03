@@ -31,9 +31,6 @@ export class CartRepository {
     return cart.save();
   }
 
-
-
-  
   async removeItem(
     consumerId: string,
     cartItemId: string,
